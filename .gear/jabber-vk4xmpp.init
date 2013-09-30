@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# jabberd2-vk4xmpp transport
+#
+# chkconfig: - 90 10
+# description:VK4xmpp transport
+
+# Do not load RH compatibility interface.
+WITHOUT_RC_COMPAT=1
+
+# Source function library.
+. /etc/init.d/functions
+
+OPTIONS=""
+
+NAME=jabber-vk4xmpp
+PIDFILE=/var/run/$NAME.pid
+LOCKFILE=/var/lock/subsys/$NAME
+DAEMON="runbg /usr/share/$NAME/gateway.py"
+RETVAL=0
+
+start()
+{
+start_daemon --pidfile "$PIDFILE" --name $NAME --lockfile "$LOCKFILE" --user jabberd2  -- $DAEMON "$OPTIONS"
+RETVAL=$?
+return $RETVAL
+}
+
+stop()
+{
+stop_daemon --pidfile "$PIDFILE" --lockfile "$LOCKFILE" --name $NAME --expect-user jabberd2 -- $DAEMON
+RETVAL=$?
+return $RETVAL
+}
+
+restart()
+{
+stop
+start
+}
+
+# See how we were called.
+case "$1" in
+start)
+start
+;;
+stop)
+stop
+;;
+reload | restart)
+restart
+;;
+condstop)
+if [ -e "$LOCKFILE" ]; then
+stop
+fi
+;;
+condreload | condrestart)
+if [ -e "$LOCKFILE" ]; then
+restart
+fi
+;;
+status)
+status --pidfile "$PIDFILE" --name $NAME --expect-user jabberd2 -- $DAEMON
+RETVAL=$?
+;;
+*)
+msg_usage "${0##*/} {start|stop|reload|restart|condstop|condrestart|condreload|status}"
+RETVAL=1
+esac
+
+exit $RETVAL

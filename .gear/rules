@@ -1,0 +1,3 @@
+tar: .
+spec: .gear/jabber-vk4xmpp.spec
+copy: .gear/*.init
